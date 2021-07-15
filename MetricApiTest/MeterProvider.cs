@@ -13,13 +13,10 @@ namespace MetricApiTest
         private object exportLock = new object();
         private MeterListener meterListener;
         private MetricPipeline[] metricPipelines;
-        private int exportIntervalMillisecs;
 
         public MeterProvider(string libraryName,
-            MetricPipeline[] metricPipelines,
-            int exportIntervalMillisecs = 5000)
+            MetricPipeline[] metricPipelines)
         {
-            this.exportIntervalMillisecs = exportIntervalMillisecs;
             this.metricPipelines = metricPipelines;
             this.meterListener = new MeterListener();
             this.meterListener.InstrumentPublished = (instrument, listener) =>

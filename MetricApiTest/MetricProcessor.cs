@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MetricApiTest
 {
-    public class MetricProcessor
+    public abstract class MetricProcessor
     {
         public void Process(List<IMetric> metrics)
         {
@@ -37,5 +37,7 @@ namespace MetricApiTest
 
             Console.WriteLine("---------------------------------");
         }
+
+        public abstract void SetGetMetric(Func<List<IMetric>> getMetrics);
     }
 }

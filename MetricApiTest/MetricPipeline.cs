@@ -14,35 +14,16 @@ namespace MetricApiTest
         private MetricProcessor metricProcessor;
         private object exportLock = new object();
         private bool isDelta;
-        private int exportIntervalMs;
         private bool disposedValue;
-        private Task exportTask;
         private CancellationTokenSource token;
         public MetricPipeline(MeasurementProcessor measurementProcessor,
             MetricProcessor metricProcessor,
-            bool isDelta,
-            int exportIntervalMs = 0)
+            bool isDelta)
         {
             this.measurementProcessor = measurementProcessor;
             this.metricProcessor = metricProcessor;
+            this.metricProcessor.SetGetMetric(this.GetMetrics);
             this.isDelta = isDelta;
-            this.exportIntervalMs = exportIntervalMs;
-            this.token = new CancellationTokenSource();
-
-            if (exportIntervalMs != 0)
-            {
-                this.exportTask = new Task(() =>
-                {
-                    while (!token.IsCancellationRequested)
-                    {
-                        Task.Delay(this.exportIntervalMs).Wait();
-                        // this.meterListener.RecordObservableInstruments();
-                        this.ExportMetrics();
-                    }
-                });
-
-                this.exportTask.Start();
-            }
         }
 
         public void Process(Instrument instrument,
@@ -52,12 +33,12 @@ namespace MetricApiTest
             this.measurementProcessor.Process<long>(instrument, measurement, tags);
         }
 
-        public void ExportMetrics()
+        private List<IMetric> GetMetrics()
         {
             lock (exportLock)
             {
                 var metrics = this.measurementProcessor.GetMetrics(DateTime.UtcNow, this.isDelta);
-                this.metricProcessor.Process(metrics);
+                return metrics;
             }
         }
 

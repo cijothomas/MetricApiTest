@@ -13,12 +13,13 @@ namespace MetricApiTest
         {
             MetricPipeline[] pipelines = new MetricPipeline[2];
             pipelines[0] = new MetricPipeline(new MeasurementProcessor(),
-                new MetricProcessor(),
-                true, 3000);
+                new PushMetricProcessor(3000),
+                true);
 
+            var pullMetricProcessor = new PullMetricProcessor();
             pipelines[1] = new MetricPipeline(new MeasurementProcessor(),
-                new MetricProcessor(),
-                false);
+                pullMetricProcessor,
+                true);
 
             using MeterProvider provider = new MeterProvider("cijolibrary",
                 pipelines,
@@ -73,7 +74,7 @@ namespace MetricApiTest
                 input = Console.ReadKey().KeyChar;
                 if (input == 'c')
                 {
-                    pipelines[1].ExportMetrics();
+                    pullMetricProcessor.Export();
                 }
             }
             while (input != 'q');
